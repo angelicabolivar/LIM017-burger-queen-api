@@ -9,7 +9,10 @@ const {
   getUsers,
 } = require('../controller/users');
 
-const initAdminUser = (app, next) => {
+const {Users} = require('../models/users');
+
+
+const initAdminUser =async (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -18,10 +21,12 @@ const initAdminUser = (app, next) => {
   const adminUser = {
     email: adminEmail,
     password: bcrypt.hashSync(adminPassword, 10),
-    roles: { admin: true },
+    roles: true,
   };
 
   // TODO: crear usuaria admin
+  const adminUserDb =await Users.create(adminUser)
+  console.log(adminUserDb);
   next();
 };
 
@@ -93,6 +98,11 @@ module.exports = (app, next) => {
    * @code {404} si la usuaria solicitada no existe
    */
   app.get('/users/:uid', requireAuth, (req, resp) => {
+    const {uid}=req.params
+    resp.json({
+      email:req.user.email,
+      uid
+    })
   });
 
   /**
